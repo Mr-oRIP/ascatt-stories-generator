@@ -1,4 +1,4 @@
-import type { Match, StoryConfig } from '../types/story';
+import type { Match, MatchPreset, StoryConfig } from '../types/story';
 
 // ==========================================
 // DATI INIZIALI (Squadre Base ASCA TT)
@@ -83,3 +83,18 @@ export const DEFAULT_MATCHES: Match[] = [
 export const OPPONENT_PALETTE = [
   '#1e40af', '#b91c1c', '#6b21a8', '#047857', '#d97706', '#0f172a', '#0284c7', '#be123c'
 ];
+
+/** Oltre questo numero le card coprirebbero titolo e footer */
+export const MAX_MATCHES = 11;
+
+/** Valori che ogni preset sostituisce in una nuova partita */
+export const MATCH_PRESETS: Record<MatchPreset, Partial<Match>> = {
+  femminile: {
+    category: 'SERIE C FEMM.',
+    girone: 'GIR. A',
+    ourTeam: 'ASCA TT FEMM.',
+    opponent: 'TT VALMADRERA',
+    time: '10.00',
+    opponentColor: '#be123c',
+  },
+};

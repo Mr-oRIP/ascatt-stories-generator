@@ -6,16 +6,16 @@ Realizzata per i social della società ASD ASCA TT.
 
 ## Cosa fa
 
-- **Anteprima in tempo reale** della storia in formato 9:16.
+- **Anteprima in tempo reale** in formato 9:16, disegnata dallo stesso motore del PNG.
 - **Export in PNG** a 1080 × 1920 px, con nome file automatico (es. `storia-matchday-ascatt-5.png`).
-- **Incontri:** aggiungi, duplica, elimina e riordina le partite; categoria, girone, casa o trasferta, data, ora e colore dell'avversario.
-- **Temi grafici:** chiaro (stile FITeT) e scuro (blu e verde fluo della società).
-- **Loghi personalizzabili:** carichi il logo della società e quello della federazione.
+- **Incontri:** fino a 11 partite da aggiungere, duplicare, eliminare e riordinare; categoria, girone, casa o trasferta, data, ora e colore dell'avversario.
+- **Temi grafici:** chiaro e scuro (blu e verde fluo della società).
+- **Logo della società:** quello di ASCA TT è già incluso (`public/logo-asca.png`) e si può sostituire caricandone un altro.
 - **Dati in locale:** configurazione e partite restano nel browser (`localStorage`), niente server e niente account.
 
 ## Stack
 
-React, TypeScript, Vite, Tailwind CSS, lucide-react. La grafica viene disegnata su `canvas` e scaricata come PNG.
+React, TypeScript, Vite, Tailwind CSS, lucide-react. La grafica viene disegnata su `canvas` con il font Inter, incluso nel progetto.
 
 ## Avvio
 
@@ -24,6 +24,8 @@ npm install
 npm run dev       # sviluppo
 npm run build     # build di produzione in dist/
 npm run preview   # prova della build
+npm run lint      # controllo del codice
+npm test          # test automatici
 ```
 
 Servono Node.js e npm.
@@ -32,13 +34,21 @@ Servono Node.js e npm.
 
 ```
 src/
-├── App.tsx            interfaccia ed export
-├── canvas/            funzioni di disegno (sfondo, intestazione, layout)
-├── constants/         valori di default e chiavi di salvataggio
+├── App.tsx            composizione della pagina
+├── canvas/            motore grafico: renderStory disegna tutta la storia
+├── export/            generazione e download del PNG
+├── hooks/             stato della storia, logo e font
+├── components/        editor, anteprima e campi riutilizzabili
+├── constants/         valori di default, diciture e chiavi di salvataggio
 ├── types/             tipi
-└── utils/             file, id, squadre
+└── utils/             file, id, squadre, logo, salvataggio
 ```
 
-## Stato del progetto
+## Verificare che il PNG non cambi
 
-Funziona e viene usato per i post della società. Il codice principale è ancora concentrato in `App.tsx` ed è da suddividere in componenti; la parte di disegno su canvas è già separata in `src/canvas/`.
+Con l'app avviata, `scripts/compare-png.mjs` esporta una serie di scenari e li confronta con PNG di riferimento. Serve Chromium per Playwright (`npx playwright install chromium`).
+
+```bash
+node scripts/compare-png.mjs capture <cartella-fuori-dal-repo>   # prima della modifica
+node scripts/compare-png.mjs compare <cartella-fuori-dal-repo>   # dopo la modifica
+```
