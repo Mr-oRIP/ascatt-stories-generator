@@ -1,12 +1,13 @@
 import type { StoryConfig } from '../types/story';
 import { STORY_WIDTH as W } from './constants';
 import { drawRoundedRect } from './helpers';
+import type { StoryPalette } from './theme';
 
 /** 3. Header (logo società + logo FITET) e 4. titolo giornata + sottotitolo */
 export function drawHeader(
   ctx: CanvasRenderingContext2D,
   config: StoryConfig,
-  isDark: boolean,
+  palette: StoryPalette,
   customLogoImg: HTMLImageElement | null
 ): void {
   // 3. HEADER: LOGO CENTRALE + FITET IN ALTO A DESTRA
@@ -34,7 +35,7 @@ export function drawHeader(
     ctx.fillStyle = '#ffffff';
     ctx.fill();
     ctx.lineWidth = 6;
-    ctx.strokeStyle = isDark ? '#00e676' : '#1e3a8a';
+    ctx.strokeStyle = palette.badgeBorder;
     ctx.stroke();
     ctx.restore();
 
@@ -90,12 +91,12 @@ export function drawHeader(
   ctx.arc(fx + 4, fy - 4, 48, Math.PI * 1.1, Math.PI * 1.9);
   ctx.stroke();
 
-  ctx.fillStyle = isDark ? '#ffffff' : '#0f2942';
+  ctx.fillStyle = palette.fitetName;
   ctx.font = 'italic 900 32px "Arial Black", Arial, sans-serif';
   ctx.textAlign = 'center';
   ctx.fillText('FITET', fx + 6, fy + 6);
 
-  ctx.fillStyle = isDark ? '#94a3b8' : '#334155';
+  ctx.fillStyle = palette.fitetDetail;
   ctx.font = '700 9px Arial, sans-serif';
   ctx.fillText('FEDERAZIONE ITALIANA', fx + 6, fy + 20);
   ctx.fillText('TENNISTAVOLO', fx + 6, fy + 30);
@@ -116,10 +117,10 @@ export function drawHeader(
   ctx.textAlign = 'left';
   ctx.shadowColor = 'rgba(0,0,0,0.12)';
   ctx.shadowBlur = 10;
-  ctx.fillStyle = isDark ? '#00e676' : '#ef233c';
+  ctx.fillStyle = palette.titleNumber;
   ctx.fillText(numText, startTitleX, titleY);
 
-  ctx.fillStyle = isDark ? '#ffffff' : '#0a2558';
+  ctx.fillStyle = palette.titleText;
   ctx.fillText(mainTitle, startTitleX + numWidth, titleY);
   ctx.restore();
 
@@ -127,13 +128,13 @@ export function drawHeader(
   const subY = 368;
   ctx.save();
   ctx.font = '600 28px "Inter", Arial, sans-serif';
-  ctx.fillStyle = isDark ? '#94a3b8' : '#334155';
+  ctx.fillStyle = palette.subtitle;
   ctx.textAlign = 'center';
   const subStr = config.subtitle || 'M A T C H D A Y';
   ctx.fillText(subStr, W / 2, subY);
 
   const subW = ctx.measureText(subStr).width;
-  ctx.strokeStyle = isDark ? 'rgba(255,255,255,0.25)' : '#64748b';
+  ctx.strokeStyle = palette.subtitleLine;
   ctx.lineWidth = 2.5;
   ctx.beginPath();
   ctx.moveTo(W / 2 - subW / 2 - 140, subY - 10);

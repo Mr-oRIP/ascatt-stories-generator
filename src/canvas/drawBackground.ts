@@ -1,84 +1,40 @@
 import { STORY_HEIGHT as H, STORY_WIDTH as W } from './constants';
+import type { StoryPalette } from './theme';
 
-/** 1. Sfondo (gradiente + trama diagonale) e 2. nastri decorativi agli angoli */
-export function drawBackground(ctx: CanvasRenderingContext2D, isDark: boolean): void {
-  // 1. SFONDO
-  if (isDark) {
-    const bgGrad = ctx.createLinearGradient(0, 0, 0, H);
-    bgGrad.addColorStop(0, '#04122c');
-    bgGrad.addColorStop(0.5, '#071f46');
-    bgGrad.addColorStop(1, '#030d22');
-    ctx.fillStyle = bgGrad;
-    ctx.fillRect(0, 0, W, H);
+function fillPolygon(ctx: CanvasRenderingContext2D, points: Array<[number, number]>, color: string): void {
+  ctx.beginPath();
+  points.forEach(([x, y], index) => (index === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y)));
+  ctx.closePath();
+  ctx.fillStyle = color;
+  ctx.fill();
+}
 
-    // Pattern diagonale sportivo leggero
-    ctx.save();
-    ctx.strokeStyle = 'rgba(255,255,255,0.025)';
-    ctx.lineWidth = 2;
-    for (let i = -H; i < W + H; i += 45) {
-      ctx.beginPath();
-      ctx.moveTo(i, 0);
-      ctx.lineTo(i - H * 0.5, H);
-      ctx.stroke();
-    }
-    ctx.restore();
-  } else {
-    const bgGrad = ctx.createLinearGradient(0, 0, W, H);
-    bgGrad.addColorStop(0, '#f8fafc');
-    bgGrad.addColorStop(0.5, '#f1f5f9');
-    bgGrad.addColorStop(1, '#e2e8f0');
-    ctx.fillStyle = bgGrad;
-    ctx.fillRect(0, 0, W, H);
+/** Sfondo (gradiente e trama diagonale) e nastri decorativi agli angoli */
+export function drawBackground(ctx: CanvasRenderingContext2D, palette: StoryPalette): void {
+  const { backgroundStops: stops, backgroundDiagonal, pattern } = palette;
 
-    // Trama geometrica chiarissima sullo sfondo (stile Olimpia)
-    ctx.save();
-    ctx.strokeStyle = 'rgba(15, 23, 42, 0.03)';
-    ctx.lineWidth = 3;
-    for (let i = -H; i < W + H; i += 60) {
-      ctx.beginPath();
-      ctx.moveTo(i, 0);
-      ctx.lineTo(i - H * 0.4, H);
-      ctx.stroke();
-    }
-    ctx.restore();
-  }
+  const gradient = ctx.createLinearGradient(0, 0, backgroundDiagonal ? W : 0, H);
+  gradient.addColorStop(0, stops[0]);
+  gradient.addColorStop(0.5, stops[1]);
+  gradient.addColorStop(1, stops[2]);
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, W, H);
 
-  // 2. NASTRI DECORATIVI AGLI ANGOLI (Top-Left & Bottom-Right come nella foto 2)
   ctx.save();
-  // Angolo in alto a sinistra
-  ctx.beginPath();
-  ctx.moveTo(0, 0);
-  ctx.lineTo(250, 0);
-  ctx.lineTo(0, 260);
-  ctx.closePath();
-  ctx.fillStyle = isDark ? '#0b3b8c' : '#0a2e65';
-  ctx.fill();
+  ctx.strokeStyle = pattern.stroke;
+  ctx.lineWidth = pattern.lineWidth;
+  for (let i = -H; i < W + H; i += pattern.spacing) {
+    ctx.beginPath();
+    ctx.moveTo(i, 0);
+    ctx.lineTo(i - H * pattern.slant, H);
+    ctx.stroke();
+  }
+  ctx.restore();
 
-  ctx.beginPath();
-  ctx.moveTo(250, 0);
-  ctx.lineTo(310, 0);
-  ctx.lineTo(0, 325);
-  ctx.lineTo(0, 260);
-  ctx.closePath();
-  ctx.fillStyle = isDark ? '#00e676' : '#e11d48';
-  ctx.fill();
-
-  // Angolo in basso a destra
-  ctx.beginPath();
-  ctx.moveTo(W, H);
-  ctx.lineTo(W - 250, H);
-  ctx.lineTo(W, H - 260);
-  ctx.closePath();
-  ctx.fillStyle = isDark ? '#0b3b8c' : '#0a2e65';
-  ctx.fill();
-
-  ctx.beginPath();
-  ctx.moveTo(W - 250, H);
-  ctx.lineTo(W - 310, H);
-  ctx.lineTo(W, H - 325);
-  ctx.lineTo(W, H - 260);
-  ctx.closePath();
-  ctx.fillStyle = isDark ? '#00e676' : '#e11d48';
-  ctx.fill();
+  ctx.save();
+  fillPolygon(ctx, [[0, 0], [250, 0], [0, 260]], palette.ribbonMain);
+  fillPolygon(ctx, [[250, 0], [310, 0], [0, 325], [0, 260]], palette.ribbonAccent);
+  fillPolygon(ctx, [[W, H], [W - 250, H], [W, H - 260]], palette.ribbonMain);
+  fillPolygon(ctx, [[W - 250, H], [W - 310, H], [W, H - 325], [W, H - 260]], palette.ribbonAccent);
   ctx.restore();
 }
