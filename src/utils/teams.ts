@@ -3,13 +3,13 @@ import type { Match } from '../types/story';
 
 /** Iniziali della squadra (max 2 lettere), es. "PSG LIMITO" → "PL" */
 export const getInitials = (name: string | undefined): string =>
-  (name || 'TT')
+  (name || '')
     .split(' ')
     .filter(Boolean)
     .slice(0, 2)
     .map(w => w[0])
     .join('')
-    .toUpperCase();
+    .toUpperCase() || 'TT';
 
 /**
  * Decide quale squadra va a sinistra e quale a destra.

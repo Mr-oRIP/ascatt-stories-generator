@@ -2,7 +2,9 @@ import { useEffect, useRef } from 'react';
 import { STORY_HEIGHT, STORY_WIDTH } from '../../canvas/constants';
 import { renderStory } from '../../canvas/renderStory';
 import { useClubLogo } from '../../hooks/useClubLogo';
+import { useStoryFonts } from '../../hooks/useStoryFonts';
 import type { Match, StoryConfig } from '../../types/story';
+import { getClubLogoSrc } from '../../utils/logo';
 
 interface StoryPreviewProps {
   config: StoryConfig;
@@ -12,7 +14,8 @@ interface StoryPreviewProps {
 /** Anteprima live: stesso disegno del PNG, ridotto via CSS */
 export function StoryPreview({ config, matches }: StoryPreviewProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const clubLogo = useClubLogo(config.customClubLogo);
+  const clubLogo = useClubLogo(getClubLogoSrc(config.customClubLogo));
+  const fontsReady = useStoryFonts();
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -22,7 +25,7 @@ export function StoryPreview({ config, matches }: StoryPreviewProps) {
     // Riassegnare la larghezza azzera disegno e stato del contesto
     canvas.width = STORY_WIDTH;
     renderStory(ctx, { config, matches, clubLogo });
-  }, [config, matches, clubLogo]);
+  }, [config, matches, clubLogo, fontsReady]);
 
   return (
     <canvas

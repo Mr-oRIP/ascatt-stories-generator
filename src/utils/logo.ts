@@ -1,6 +1,12 @@
 import { loadImage } from '../canvas/helpers';
 import { readFileAsDataURL } from './file';
 
+/** Logo ASCA TT predefinito, sostituibile caricandone un altro */
+const DEFAULT_CLUB_LOGO_URL = `${import.meta.env.BASE_URL}logo-asca.png`;
+
+/** Sorgente del logo da disegnare: quello caricato, altrimenti il predefinito */
+export const getClubLogoSrc = (customClubLogo: string | null): string => customClubLogo || DEFAULT_CLUB_LOGO_URL;
+
 /** Lato massimo del logo salvato: basta per l'export e limita lo spazio occupato nel browser */
 const MAX_LOGO_SIDE = 512;
 

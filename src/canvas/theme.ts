@@ -78,7 +78,7 @@ const ASCA_DARK: StoryPalette = {
   ribbonAccent: '#00e676',
   badgeBorder: '#00e676',
   fitetName: '#ffffff',
-  fitetDetail: '#94a3b8',
+  fitetDetail: '#cbd5e1',
   titleNumber: '#00e676',
   titleText: '#ffffff',
   subtitle: '#94a3b8',

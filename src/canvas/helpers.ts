@@ -28,3 +28,18 @@ export const drawRoundedRect = (
   ctx.arcTo(x, y, x + w, y, radius);
   ctx.closePath();
 };
+
+/** Disegna un'immagine centrata in un riquadro di lato `size`, senza deformarla né tagliarla */
+export const drawImageContained = (
+  ctx: CanvasRenderingContext2D,
+  image: HTMLImageElement,
+  cx: number,
+  cy: number,
+  size: number
+): void => {
+  const { naturalWidth: width, naturalHeight: height } = image;
+  const longestSide = Math.max(width, height, 1);
+  const drawW = (size * (width || longestSide)) / longestSide;
+  const drawH = (size * (height || longestSide)) / longestSide;
+  ctx.drawImage(image, cx - drawW / 2, cy - drawH / 2, drawW, drawH);
+};

@@ -1,8 +1,8 @@
 import type { Match } from '../types/story';
 import { getLocationLabel, getTeamSides, hasMatchTime } from '../utils/teams';
 import { CARD_W, CARD_X } from './constants';
-import { drawClubCrest, drawOpponentCrest } from './drawCrests';
-import { drawRoundedRect } from './helpers';
+import { drawAscaCrest, drawOpponentBadge } from './drawLogos';
+import { drawImageContained, drawRoundedRect } from './helpers';
 import type { CardLayout } from './layout';
 import type { StoryPalette } from './theme';
 
@@ -15,6 +15,9 @@ export interface MatchCardOptions {
   autoSwapAway: boolean;
   clubLogo: HTMLImageElement | null;
 }
+
+/** Larghezza massima dei testi nel blocco data e orario */
+const DATE_BLOCK_TEXT_WIDTH = 270;
 
 /** Limita `value` all'intervallo tra `min` e `max` */
 const clamp = (value: number, min: number, max: number): number => Math.min(max, Math.max(min, value));
@@ -87,7 +90,7 @@ function drawDateBlock(
   if (hasMatchTime(match)) {
     const dateSize = Math.round(clamp(27 * scale, 20, 30));
     ctx.font = `800 ${dateSize}px "Inter", Arial, sans-serif`;
-    ctx.fillText((match.date || '').toUpperCase(), centerX, y + h * 0.27);
+    ctx.fillText((match.date || '').toUpperCase(), centerX, y + h * 0.27, DATE_BLOCK_TEXT_WIDTH);
 
     ctx.strokeStyle = 'rgba(255,255,255,0.45)';
     ctx.lineWidth = 2;
@@ -104,11 +107,11 @@ function drawDateBlock(
     const timeSize = Math.round(clamp(56 * scale, 38, 64));
     ctx.font = `900 ${timeSize}px "Inter", "Arial Black", sans-serif`;
     ctx.fillStyle = '#ffffff';
-    ctx.fillText(match.time.trim(), centerX, y + h * 0.88);
+    ctx.fillText(match.time.trim(), centerX, y + h * 0.88, DATE_BLOCK_TEXT_WIDTH);
   } else {
     const dateSize = Math.round(clamp(34 * scale, 24, 36));
     ctx.font = `900 ${dateSize}px "Inter", "Arial Black", sans-serif`;
-    ctx.fillText((match.date || 'DA DEFINIRE').toUpperCase(), centerX, y + h * 0.56);
+    ctx.fillText((match.date || 'DA DEFINIRE').toUpperCase(), centerX, y + h * 0.56, DATE_BLOCK_TEXT_WIDTH);
   }
 
   return { rightBottomX };
@@ -120,6 +123,7 @@ function drawInfoBar(
   match: Match,
   y: number,
   scale: number,
+  rightBottomX: number,
   palette: StoryPalette
 ): { pillH: number } {
   const pillX = CARD_X + 22;
@@ -128,7 +132,8 @@ function drawInfoBar(
   const label = `${match.category || ''} ${match.girone || ''}`.trim().toUpperCase();
 
   ctx.font = `900 ${Math.round(pillH * 0.62)}px "Inter", Arial, sans-serif`;
-  const pillW = Math.max(140, ctx.measureText(label).width + 36);
+  const pillMaxW = (rightBottomX - CARD_X) * 0.6;
+  const pillW = Math.min(pillMaxW, Math.max(140, ctx.measureText(label).width + 36));
 
   drawRoundedRect(ctx, pillX, pillY, pillW, pillH, 10);
   ctx.fillStyle = palette.pillFill;
@@ -136,7 +141,7 @@ function drawInfoBar(
 
   ctx.fillStyle = palette.pillText;
   ctx.textAlign = 'center';
-  ctx.fillText(label, pillX + pillW / 2, pillY + pillH * 0.73);
+  ctx.fillText(label, pillX + pillW / 2, pillY + pillH * 0.73, pillW - 24);
 
   const dividerX = pillX + pillW + 18;
   ctx.strokeStyle = palette.divider;
@@ -166,9 +171,26 @@ function drawInfoBar(
   ctx.textAlign = 'left';
   ctx.fillStyle = palette.location;
   ctx.font = `800 ${Math.round(pillH * 0.62)}px "Inter", Arial, sans-serif`;
-  ctx.fillText(getLocationLabel(match).toUpperCase(), pinX + 16, pillY + pillH * 0.73);
+  const locationX = pinX + 16;
+  ctx.fillText(getLocationLabel(match).toUpperCase(), locationX, pillY + pillH * 0.73, rightBottomX - locationX - 12);
 
   return { pillH };
+}
+
+/** Stemma della nostra squadra: logo società oppure, se non si carica, stemma disegnato */
+function drawClubCrest(
+  ctx: CanvasRenderingContext2D,
+  cx: number,
+  cy: number,
+  radius: number,
+  clubLogo: HTMLImageElement | null
+): void {
+  const size = radius * 2.1;
+  if (clubLogo) {
+    drawImageContained(ctx, clubLogo, cx, cy, size);
+  } else {
+    drawAscaCrest(ctx, cx, cy, size);
+  }
 }
 
 /** Area principale: stemmi, scritta VS e nomi delle due squadre */
@@ -193,7 +215,7 @@ function drawTeams(
     const drawCrest = (x: number, isOurs: boolean, name: string) =>
       isOurs
         ? drawClubCrest(ctx, x, bodyY, crestRadius, clubLogo)
-        : drawOpponentCrest(ctx, x, bodyY, crestRadius, name, match.opponentColor);
+        : drawOpponentBadge(ctx, x, bodyY, crestRadius * 2.4, name, match.opponentColor);
 
     drawCrest(leftX, team1IsOur, leftTeam);
     drawCrest(rightX, !team1IsOur, rightTeam);
@@ -235,7 +257,7 @@ export function drawMatchCard(ctx: CanvasRenderingContext2D, options: MatchCardO
   }
 
   const { rightBottomX } = drawDateBlock(ctx, match, y, h, scale, index % 2 === 0, palette);
-  const { pillH } = drawInfoBar(ctx, match, y, scale, palette);
+  const { pillH } = drawInfoBar(ctx, match, y, scale, rightBottomX, palette);
   drawTeams(ctx, options, y, pillH, rightBottomX);
 
   ctx.restore();

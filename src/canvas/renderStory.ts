@@ -12,12 +12,15 @@ export interface StoryScene {
   clubLogo: HTMLImageElement | null;
 }
 
+/** Il testo si ferma prima dei nastri decorativi */
+const FOOTER_MAX_WIDTH = 720;
+
 function drawFooter(ctx: CanvasRenderingContext2D, website: string, palette: StoryPalette): void {
   ctx.save();
   ctx.font = 'italic 800 32px "Inter", Arial, sans-serif';
   ctx.fillStyle = palette.footer;
   ctx.textAlign = 'center';
-  ctx.fillText(website || 'www.ascatt.it', STORY_WIDTH / 2, 1872);
+  ctx.fillText(website || 'www.ascatt.it', STORY_WIDTH / 2, 1872, FOOTER_MAX_WIDTH);
   ctx.restore();
 }
 
